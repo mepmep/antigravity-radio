@@ -145,6 +145,13 @@ function stopStream(notifyUser = false) {
   updateStatus('idle', 'Detenido');
   updateMediaSessionPlayback('none');
 
+  // Restablecer carátula por defecto al detener la transmisión (PROJECT.md)
+  if (dom.artworkImg) {
+    dom.artworkImg.src = CONFIG.DEFAULT_ARTWORK;
+    dom.artworkImg.style.opacity = '1';
+  }
+  state.currentArt = CONFIG.DEFAULT_ARTWORK;
+
   if (notifyUser) {
     showToast('Transmisión desconectada (Datos cortados)', '🛑');
   }
@@ -693,11 +700,15 @@ function setupShareAndPWA() {
       try {
         const textarea = document.createElement('textarea');
         textarea.value = url;
+        textarea.setAttribute('readonly', '');
         textarea.style.position = 'fixed';
         textarea.style.left = '-9999px';
+        textarea.style.top = '-9999px';
+        textarea.style.opacity = '0';
         document.body.appendChild(textarea);
         textarea.focus();
         textarea.select();
+        textarea.setSelectionRange(0, textarea.value.length);
         document.execCommand('copy');
         document.body.removeChild(textarea);
       } catch (err) {
@@ -708,8 +719,26 @@ function setupShareAndPWA() {
     showToast('¡Enlace copiado al portapapeles!', '📋', 2500);
   }
 
-  dom.shareBtn?.addEventListener('click', (e) => {
+  dom.shareBtn?.addEventListener('click', async (e) => {
     e.preventDefault();
+    const shareData = {
+      title: 'MyRadio Online',
+      text: `Escucha ${state.currentTitle || 'MyRadio'} en vivo`,
+      url: window.location.href
+    };
+
+    if (navigator.share && window.isSecureContext) {
+      try {
+        await navigator.share(shareData);
+        return;
+      } catch (err) {
+        if (err.name === 'AbortError') {
+          return;
+        }
+        console.warn('navigator.share no disponible o cancelado, usando portapapeles:', err);
+      }
+    }
+
     copyUrlToClipboard();
   });
 

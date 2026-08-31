@@ -1,14 +1,15 @@
 /**
  * MyRadio PWA - Service Worker
- * Versión 1.0.0
+ * Versión 1.1.0
  * Caché inteligente de App Shell con bypass estricto para Live Audio Stream y API de Metadata.
  */
 
-const CACHE_NAME = 'myradio-pwa-v1.0.0';
+const CACHE_NAME = 'myradio-pwa-v1.1.0';
 
 const APP_SHELL_ASSETS = [
   './',
   './index.html',
+  './style.css',
   './app.js',
   './manifest.json',
   './logo.png',
